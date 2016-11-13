@@ -20,7 +20,7 @@ public class App {
 
     private static final Logger LOGGER = Logger.getLogger(App.class.getName());
     private static final String ENDPOINT = "ENDPOINT";
-    private static final String CSV_INPUT = "./resources/homophones_confusion_sentences.csv";
+    private static final String CSV_INPUT = "./resources/homophones_confusion_sentences_small.csv";
     private static final String CSV_OUTPUT = "./resources/matches.csv";
 
     public static void main(String[] args) {
