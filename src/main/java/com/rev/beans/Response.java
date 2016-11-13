@@ -6,6 +6,15 @@ public class Response {
 
     public Software software;
     public Language language;
+
+    public List<Match> getMatches() {
+        return matches;
+    }
+
+    public void setMatches(List<Match> matches) {
+        this.matches = matches;
+    }
+
     public List<Match> matches;
 
     public static class Match {
