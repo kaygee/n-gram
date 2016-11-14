@@ -16,7 +16,7 @@ import java.util.*;
 public class App {
 
     private static final Logger LOGGER = Logger.getLogger(App.class.getName());
-    private static final String ENDPOINT = "https://uebkuopq30.execute-api.us-west-2.amazonaws.com/prod/languagetool/";
+    private static final String ENDPOINT = "ENDPOINT";
     private static final String CSV_INPUT = "./resources/homophones_confusion_sentences.csv";
     private static final String CSV_OUTPUT = "./resources/matches.csv";
     private static final String[] CSV_HEADER = {
@@ -59,13 +59,14 @@ public class App {
             String[] nextLine;
             while ((nextLine = reader.readNext()) != null) {
                 Check check = new Check();
-                String line = nextLine[0];
-                LOGGER.info("Check line is [" + line + "].");
-                check.setText(line);
+                check.setText(nextLine[0]);
+                LOGGER.info("Check line is [" + check.getText() + "].");
                 Response response = facade.checkForMatches(check);
                 List<Response.Match> matches = response.getMatches();
                 if (matches.size() > 0) {
-                    matchesMap.put(line, matches);
+                    matchesMap.put(check.getText(), matches);
+                } else {
+                    LOGGER.info("Check line [" + check.getText() + "] has no matches.");
                 }
             }
 
