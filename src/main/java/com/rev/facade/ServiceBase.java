@@ -153,17 +153,17 @@ public class ServiceBase {
 
     private TrustManager[] getTrustingManager() {
         return new TrustManager[]{new X509TrustManager() {
-            @Override
+//            @Override
             public X509Certificate[] getAcceptedIssuers() {
                 return null;
             }
 
-            @Override
+//            @Override
             public void checkClientTrusted(X509Certificate[] certs, String authType) {
                 // Do nothing
             }
 
-            @Override
+//            @Override
             public void checkServerTrusted(X509Certificate[] certs, String authType) {
                 // Do nothing
             }
