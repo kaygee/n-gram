@@ -6,6 +6,8 @@ import com.rev.beans.Check;
 import com.rev.beans.Response;
 import com.rev.facade.NgramFacade;
 import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import java.io.FileReader;
@@ -16,9 +18,9 @@ import java.util.*;
 public class App {
 
     private static final Logger LOGGER = Logger.getLogger(App.class.getName());
-    private static final String ENDPOINT = "ENDPOINT";
-    private static final String CSV_INPUT = "./resources/homophones_confusion_sentences.csv";
-    private static final String CSV_OUTPUT = "./resources/matches.csv";
+    private static final String ENDPOINT = "https://uebkuopq30.execute-api.us-west-2.amazonaws.com/prod/languagetool";
+    private static final String CSV_INPUT = "./resources/rules_to_ignore.csv";
+    private static final String CSV_OUTPUT = "./resources/rules_to_ignore_matches.csv";
     private static final String[] CSV_HEADER = {
             "LINE",
             "CONFUSED_WORDS",
@@ -45,30 +47,42 @@ public class App {
             "A_INFINITVE",
             "YOUR_NN",
             "HAVE_PART_AGREEMENT",
-            "IT_IS"
+            "IT_IS",
+            "MASS_AGREEMENT",
+            "SENT_START_CONJUNCTIVE_LINKING_ADVERB_COMMA",
+            "EN_UNPAIRED_BRACKETS"
     };
 
     public static void main(String[] args) {
         BasicConfigurator.configure();
+        LogManager.getLogger("org.apache").setLevel(Level.INFO);
+        LogManager.getLogger("com.rev").setLevel(Level.INFO);
         NgramFacade facade = new NgramFacade(ENDPOINT);
 
         Map<String, List<Response.Match>> matchesMap = new HashMap<String, List<Response.Match>>();
+        int lineCount = 0;
 
         try {
             CSVReader reader = new CSVReader(new FileReader(CSV_INPUT));
             String[] nextLine;
+            lineCount ++;
+            int noMatchCount = 0;
             while ((nextLine = reader.readNext()) != null) {
-                Check check = new Check();
-                check.setText(nextLine[0]);
-                LOGGER.info("Check line is [" + check.getText() + "].");
+                Check check = new Check(nextLine[0], nextLine[1]);
+                LOGGER.info("Rule [" + check.getRule() + "] is the text [" + check.getText() + "].");
                 Response response = facade.checkForMatches(check);
                 List<Response.Match> matches = response.getMatches();
                 if (matches.size() > 0) {
                     matchesMap.put(check.getText(), matches);
                 } else {
                     LOGGER.info("Check line [" + check.getText() + "] has no matches.");
+                    noMatchCount ++;
                 }
             }
+
+            LOGGER.info("Number of queries with no matches returned [" + noMatchCount + "].");
+            LOGGER.info("Number of queries with matches returned [" + matchesMap.size() + "].");
+            LOGGER.info("Number lines [" + lineCount + "].");
 
             writeCsvFile(matchesMap);
         } catch (IOException e) {
@@ -112,6 +126,10 @@ public class App {
             Map.Entry pair = (Map.Entry) it.next();
             String rule = (String) pair.getKey();
             int columnNumber = getColumnNumber(rule);
+            if (columnNumber == -1){
+                LOGGER.info("Couldn't find the rule [" + rule + "] in the header list!");
+                System.exit(1);
+            }
             csvOutputEntry[columnNumber] = ruleToOccurrence.get(rule).toString();
         }
         return csvOutputEntry;

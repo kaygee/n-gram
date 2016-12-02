@@ -5,16 +5,20 @@ package com.rev.beans;
  */
 public class Check {
 
-    public Check() {
+    private String text;
+    private String rule;
+
+    public Check(String text, String rule) {
+        this.text = text;
+        this.rule = rule;
     }
 
-    public String text;
+    public String getRule() {
+        return rule;
+    }
 
     public String getText() {
         return this.text;
     }
 
-    public void setText(String text) {
-        this.text = text;
-    }
 }
